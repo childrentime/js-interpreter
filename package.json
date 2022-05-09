@@ -1,0 +1,13 @@
+{
+  "name": "ast-viualization",
+  "version": "1.0.0",
+  "description": "This project is about to implement a simple javascript parser and visualize the ast",
+  "main": "src/index.ts",
+  "repository": "https://github.com/childrentime/ast-viualization",
+  "bug": {
+    "url": "https://github.com/childrentime/ast-viualization/issues"
+  },
+  "author": "childrentime",
+  "license": "MIT",
+  "private": false
+}
