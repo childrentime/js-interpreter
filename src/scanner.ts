@@ -38,21 +38,77 @@ export class Scanner {
     if (Character.isIdentifierStart(cp)) {
       return this.scanIdentifier();
     }
+    if (Character.isDecimalDigit(cp)) {
+      return this.scanNumericLiteral();
+    }
 
     return this.scanPunctuator();
   }
 
-  private getIdentifier(): string {
-    const start = this.index++;
-    while (!this.eof()) {
-      const ch = this.source.charCodeAt(this.index);
-      if (Character.isIdentifierPart(ch)) {
-        this.index++;
-      } else {
-        break;
+  private scanNumericLiteral(): RawToken {
+    const start = this.index;
+    let ch = this.source[start];
+    let num = "";
+    if (ch !== ".") {
+      num = this.source[this.index++];
+      ch = this.source[this.index];
+      // 16进制 '0x'.
+      // 十进制 '0'.
+      // 八进制 '0o'.
+      // 二进制 '0b'.
+      if (num === "0") {
+        if (ch === "x" || ch === "X") {
+          this.index++;
+          return this.scanHexLiteral(start);
+        }
+        if (ch === "b" || ch === "B") {
+          ++this.index;
+          return this.scanBinaryLiteral(start);
+        }
+        if (ch === "o" || ch === "O") {
+          return this.scanOctalLiteral(ch, start);
+        }
+        // 0784(8) = 500(10)
+        if (ch && Character.isOctalDigit(ch.charCodeAt(0))) {
+          if (this.isImplicitOctalLiteral()) {
+            return this.scanOctalLiteral(ch, start);
+          }
+        }
+      }
+      while (Character.isDecimalDigit(this.source.charCodeAt(this.index))) {
+        num += this.source[this.index++];
+      }
+      ch = this.source[this.index];
+    }
+
+    // 浮点数
+    if (ch === ".") {
+      num += this.source[this.index++];
+      while (Character.isDecimalDigit(this.source.charCodeAt(this.index))) {
+        num += this.source[this.index++];
+      }
+      ch = this.source[this.index];
+    }
+
+    // 科学计数法
+    if (ch === "e" || ch === "E") {
+      num += this.source[this.index++];
+      ch = this.source[this.index];
+      if (ch === "+" || ch === "-") {
+        num += this.source[this.index++];
+      }
+      if (Character.isDecimalDigit(this.source.charCodeAt(this.index))) {
+        while (Character.isDecimalDigit(this.source.charCodeAt(this.index))) {
+          num += this.source[this.index++];
+        }
       }
     }
-    return this.source.slice(start, this.index);
+    return {
+      type: Token.NumericLiteral,
+      value: parseFloat(num),
+      start: start,
+      end: this.index,
+    };
   }
 
   // 忽略了中文标识符 代理对
@@ -78,58 +134,6 @@ export class Scanner {
       start: start,
       end: this.index,
     };
-  }
-
-  private isKeyword(id: string): boolean {
-    switch (id.length) {
-      case 2:
-        return id === "if" || id === "in" || id === "do";
-      case 3:
-        return (
-          id === "var" ||
-          id === "for" ||
-          id === "new" ||
-          id === "try" ||
-          id === "let"
-        );
-      case 4:
-        return (
-          id === "this" ||
-          id === "else" ||
-          id === "case" ||
-          id === "void" ||
-          id === "with" ||
-          id === "enum"
-        );
-      case 5:
-        return (
-          id === "while" ||
-          id === "break" ||
-          id === "catch" ||
-          id === "throw" ||
-          id === "const" ||
-          id === "yield" ||
-          id === "class" ||
-          id === "super"
-        );
-      case 6:
-        return (
-          id === "return" ||
-          id === "typeof" ||
-          id === "delete" ||
-          id === "switch" ||
-          id === "export" ||
-          id === "import"
-        );
-      case 7:
-        return id === "default" || id === "finally" || id === "extends";
-      case 8:
-        return id === "function" || id === "continue" || id === "debugger";
-      case 10:
-        return id === "instanceof";
-      default:
-        return false;
-    }
   }
 
   private scanPunctuator(): RawToken {
@@ -230,12 +234,138 @@ export class Scanner {
             }
           }
         }
-        return {
-          type: Token.Punctuator,
-          value: str,
-          start: start,
-          end: this.index,
-        };
     }
+    return {
+      type: Token.Punctuator,
+      value: str,
+      start: start,
+      end: this.index,
+    };
+  }
+
+  private getIdentifier(): string {
+    const start = this.index++;
+    while (!this.eof()) {
+      const ch = this.source.charCodeAt(this.index);
+      if (Character.isIdentifierPart(ch)) {
+        this.index++;
+      } else {
+        break;
+      }
+    }
+    return this.source.slice(start, this.index);
+  }
+
+  private isKeyword(id: string): boolean {
+    switch (id.length) {
+      case 2:
+        return id === "if" || id === "in" || id === "do";
+      case 3:
+        return (
+          id === "var" ||
+          id === "for" ||
+          id === "new" ||
+          id === "try" ||
+          id === "let"
+        );
+      case 4:
+        return (
+          id === "this" ||
+          id === "else" ||
+          id === "case" ||
+          id === "void" ||
+          id === "with" ||
+          id === "enum"
+        );
+      case 5:
+        return (
+          id === "while" ||
+          id === "break" ||
+          id === "catch" ||
+          id === "throw" ||
+          id === "const" ||
+          id === "yield" ||
+          id === "class" ||
+          id === "super"
+        );
+      case 6:
+        return (
+          id === "return" ||
+          id === "typeof" ||
+          id === "delete" ||
+          id === "switch" ||
+          id === "export" ||
+          id === "import"
+        );
+      case 7:
+        return id === "default" || id === "finally" || id === "extends";
+      case 8:
+        return id === "function" || id === "continue" || id === "debugger";
+      case 10:
+        return id === "instanceof";
+      default:
+        return false;
+    }
+  }
+
+  private scanHexLiteral(start: number): RawToken {
+    let num = "";
+    while (!this.eof()) {
+      if (!Character.isHexDigit(this.source.charCodeAt(this.index))) {
+        break;
+      }
+      num += this.source[this.index++];
+    }
+    return {
+      type: Token.NumericLiteral,
+      value: parseInt("0x" + num, 16),
+      start: start,
+      end: this.index,
+    };
+  }
+
+  private scanBinaryLiteral(start: number): RawToken {
+    let num = "";
+    while (!this.eof()) {
+      num += this.source[this.index++];
+    }
+    return {
+      type: Token.NumericLiteral,
+      value: parseInt(num, 2),
+      start: start,
+      end: this.index,
+    };
+  }
+
+  private scanOctalLiteral(prefix: string, start: number): RawToken {
+    let num = "";
+    // 隐式八进制
+    if (Character.isOctalDigit(prefix.charCodeAt(0))) {
+      num = "0" + this.source[this.index++];
+    } else {
+      this.index++;
+    }
+    while (!this.eof()) {
+      if (!Character.isOctalDigit(this.source.charCodeAt(this.index))) {
+        break;
+      }
+      num += this.source[this.index++];
+    }
+    return {
+      type: Token.NumericLiteral,
+      value: parseInt(num, 8),
+      start: start,
+      end: this.index,
+    };
+  }
+
+  private isImplicitOctalLiteral(): boolean {
+    for (let i = this.index + 1; i < this.length; i++) {
+      const ch = this.source[i];
+      if (ch === "8" || ch === "9") {
+        return false;
+      }
+    }
+    return true;
   }
 }
