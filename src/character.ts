@@ -51,4 +51,17 @@ export const Character = {
   isLineTerminator(cp: number): boolean {
     return cp === 0x0a || cp === 0x0d || cp === 0x2028 || cp === 0x2029;
   },
+  isDecimalDigit(cp: number): boolean {
+    return cp >= 0x30 && cp <= 0x39; // 0..9
+  },
+  isOctalDigit(cp: number): boolean {
+    return cp >= 0x30 && cp <= 0x37; // 0..7
+  },
+  isHexDigit(cp: number): boolean {
+    return (
+      (cp >= 0x30 && cp <= 0x39) || // 0..9
+      (cp >= 0x41 && cp <= 0x46) || // A..F
+      (cp >= 0x61 && cp <= 0x66)
+    ); // a..f
+  },
 };
