@@ -9,5 +9,8 @@
   },
   "author": "childrentime",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
 }
