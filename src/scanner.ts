@@ -38,6 +38,10 @@ export class Scanner {
     if (Character.isIdentifierStart(cp)) {
       return this.scanIdentifier();
     }
+    // 会被频繁解析的标点符号
+    if (cp === 0x28 || cp === 0x29 || cp === 0x3b) {
+      return this.scanPunctuator();
+    }
     if (Character.isDecimalDigit(cp)) {
       return this.scanNumericLiteral();
     }
