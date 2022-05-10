@@ -15,9 +15,9 @@ export class Tokenizer {
 
   public getNextToken(): BufferEntry | undefined {
     if (this.buffer.length === 0) {
+      // 跳过空格和换行符
+      this.scanner.skipWhiteSpaceAndLineTerminator();
       if (!this.scanner.eof()) {
-        // 跳过空格和换行符
-        this.scanner.skipWhiteSpaceAndLineTerminator();
         const token: RawToken = this.scanner.lex();
         const entry: BufferEntry = {
           type: TokenName[token.type],
