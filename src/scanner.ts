@@ -21,14 +21,19 @@ export class Scanner {
     return this.index >= this.length;
   }
 
+  // 跳过所有的空格和换行
   public skipWhiteSpaceAndLineTerminator() {
-    let ch = this.source.charCodeAt(this.index);
-    if (Character.isWhiteSpace(ch)) {
-      this.index++;
-    } else if (Character.isLineTerminator(ch)) {
-      ++this.index;
-      if (ch === 0x0d && this.source.charCodeAt(this.index) === 0x0a) {
+    while (!this.eof()) {
+      let ch = this.source.charCodeAt(this.index);
+      if (Character.isWhiteSpace(ch)) {
+        this.index++;
+      } else if (Character.isLineTerminator(ch)) {
         ++this.index;
+        if (ch === 0x0d && this.source.charCodeAt(this.index) === 0x0a) {
+          ++this.index;
+        }
+      } else {
+        break;
       }
     }
   }
