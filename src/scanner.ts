@@ -38,12 +38,16 @@ export class Scanner {
     if (Character.isIdentifierStart(cp)) {
       return this.scanIdentifier();
     }
-    // 会被频繁解析的标点符号
+    // 会被频繁解析的标点符号 ();
     if (cp === 0x28 || cp === 0x29 || cp === 0x3b) {
       return this.scanPunctuator();
     }
     if (Character.isDecimalDigit(cp)) {
       return this.scanNumericLiteral();
+    }
+    // 字符串字面量 '' ""
+    if (cp === 0x27 || cp === 0x22) {
+      return this.scanStringLiteral();
     }
 
     return this.scanPunctuator();
@@ -187,7 +191,7 @@ export class Scanner {
 
       default:
         // 4字符
-        str = this.source.slice(this.index, 4);
+        str = this.source.slice(this.index, this.index + 4);
         if (str === ">>>=") {
           this.index += 4;
         } else {
@@ -371,5 +375,27 @@ export class Scanner {
       }
     }
     return true;
+  }
+
+  // 不考虑转义字符
+  private scanStringLiteral(): RawToken {
+    const start = this.index;
+    this.index++;
+    let quote = this.source[start];
+    let str = "";
+    while (!this.eof()) {
+      let ch = this.source[this.index++];
+      if (ch === quote) {
+        break;
+      } else {
+        str += ch;
+      }
+    }
+    return {
+      type: Token.StringLiteral,
+      value: str,
+      start: start,
+      end: this.index,
+    };
   }
 }
