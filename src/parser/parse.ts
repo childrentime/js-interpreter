@@ -3,6 +3,9 @@ import { Token, TokenName } from "../tokenizer/token";
 import { BufferEntry } from "../tokenizer/tokenizer";
 import { Syntax } from "./syntax";
 
+interface DeclarationOptions {
+  inFor: boolean;
+}
 export class Parser {
   // 下一个token
   private lookahead: BufferEntry;
@@ -178,8 +181,8 @@ export class Parser {
             return this.parseBreakStatement();
           case "continue":
             return this.parseContinueStatement();
-          // case "for":
-          //   return this.parseForStatement();
+          case "for":
+            return this.parseForStatement();
           case "function":
             return this.parseFunctionDeclaration();
           // case "if":
@@ -371,6 +374,50 @@ export class Parser {
     this.expectKeyword("continue");
     this.consumeSemicolon();
     return new Node.ContinueStatement();
+  }
+
+  private parseForStatement(): Node.ForStatement {
+    this.expectKeyword("for");
+    this.expect("(");
+    let init: Node.VariableDeclaration | null = null;
+    let test: Node.Expression | null = null;
+    let update: Node.Expression | null = null;
+    let body: Node.BlockStatement;
+    if (this.match(";")) {
+      this.nextToken();
+    } else {
+      this.expectKeyword("var");
+      const declarations = this.parseVariableDeclarationList();
+      init = new Node.VariableDeclaration(declarations, "var");
+      this.expect(";");
+    }
+    test = this.parseAssignmentExpression();
+    this.expect(";");
+    if (!this.match(")")) {
+      update = this.parseAssignmentExpression();
+    }
+    this.expect(")");
+    body = this.parseBlock();
+    return new Node.ForStatement(init, test, update, body);
+  }
+
+  // 解析声明列表 比如 var a=1,b=2;
+  private parseVariableDeclarationList(): Node.VariableDeclarator[] {
+    const list: Node.VariableDeclarator[] = [];
+    list.push(this.parseVariableDeclaration());
+    while (this.match(",")) {
+      this.nextToken();
+      list.push(this.parseVariableDeclaration());
+    }
+    return list;
+  }
+
+  private parseVariableDeclaration(): Node.VariableDeclarator {
+    const id = this.parseVariableIdentifier();
+    let init: Node.Expression | null = null;
+    this.expect("=");
+    init = this.parseAssignmentExpression();
+    return new Node.VariableDeclarator(id, init);
   }
 
   // 吃掉关键字

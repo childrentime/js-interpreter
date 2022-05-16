@@ -113,9 +113,9 @@ export class Identifier {
 
 export class VariableDeclaration {
   readonly type: string;
-  readonly declarations: VariableDeclarator;
+  readonly declarations: VariableDeclarator[];
   readonly kind: string;
-  constructor(declarations: VariableDeclarator, kind: string) {
+  constructor(declarations: VariableDeclarator[], kind: string) {
     this.type = Syntax.VariableDeclaration;
     this.declarations = declarations;
     this.kind = kind;
@@ -220,17 +220,17 @@ export class IfStatement {
 export class ForStatement {
   readonly type: string;
   // var a = 1;
-  readonly init: Expression | null;
+  readonly init: VariableDeclaration | null;
   // a <3;
   readonly test: Expression | null;
   // a++
   readonly update: Expression | null;
-  body: Statement;
+  body: BlockStatement;
   constructor(
-    init: Expression | null,
+    init: VariableDeclaration | null,
     test: Expression | null,
     update: Expression | null,
-    body: Statement
+    body: BlockStatement
   ) {
     this.type = Syntax.ForStatement;
     this.init = init;
