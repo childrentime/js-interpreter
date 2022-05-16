@@ -176,8 +176,8 @@ export class Parser {
         switch (this.lookahead.value) {
           case "break":
             return this.parseBreakStatement();
-          // case "continue":
-          //   return this.parseContinueStatement();
+          case "continue":
+            return this.parseContinueStatement();
           // case "for":
           //   return this.parseForStatement();
           case "function":
@@ -365,6 +365,12 @@ export class Parser {
     this.expectKeyword("break");
     this.consumeSemicolon();
     return new Node.BreakStatement();
+  }
+
+  private parseContinueStatement(): Node.ContinueStatement {
+    this.expectKeyword("continue");
+    this.consumeSemicolon();
+    return new Node.ContinueStatement();
   }
 
   // 吃掉关键字
