@@ -3,3 +3,13 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+
+.left {
+  width: 50%;
+}
