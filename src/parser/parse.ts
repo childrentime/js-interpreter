@@ -155,8 +155,6 @@ export class Parser {
   }
 
   private parseStatement(): Node.Statement {
-    console.log(this.lookahead);
-    console.log(this.lookahead.type === TokenName[Token.Identifier]);
     switch (this.lookahead.type) {
       case TokenName[Token.BooleanLiteral]:
       case TokenName[Token.NullLiteral]:
@@ -229,7 +227,6 @@ export class Parser {
   private parseBinaryExpression(): Node.Expression {
     let expression = this.parseExponentiationExpression();
     const token = this.lookahead;
-    console.log(token);
     let prec = this.binaryPrecedence(token);
     if (prec > 0) {
       let left = expression;
