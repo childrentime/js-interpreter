@@ -3,9 +3,6 @@ import { Token, TokenName } from "../tokenizer/token";
 import { BufferEntry } from "../tokenizer/tokenizer";
 import { Syntax } from "./syntax";
 
-interface DeclarationOptions {
-  inFor: boolean;
-}
 export class Parser {
   // 下一个token
   private lookahead: BufferEntry;
@@ -185,14 +182,14 @@ export class Parser {
             return this.parseForStatement();
           case "function":
             return this.parseFunctionDeclaration();
-          // case "if":
-          //   return this.parseIfStatement();
-          // case "return":
-          //   return this.parseReturnStatement();
-          // case "var":
-          //   return this.parseVariableStatement();
-          // case "while":
-          //   return this.parseWhileStatement();
+          case "if":
+            return this.parseIfStatement();
+          case "return":
+            return this.parseReturnStatement();
+          case "var":
+            return this.parseVariableStatement();
+          case "while":
+            return this.parseWhileStatement();
           default:
             return this.parseExpressionStatement();
         }
@@ -322,7 +319,7 @@ export class Parser {
       const prefix = true;
       return new Node.UpdateExpression(token.value, expression, prefix);
     } else {
-      const expression = this.parsePrimaryExpression();
+      const expression = this.parseCallExpression();
       if (this.match("++") || this.match("--")) {
         const operator = this.nextToken().value;
         const prefix = false;
@@ -330,6 +327,15 @@ export class Parser {
       }
       return expression;
     }
+  }
+
+  private parseCallExpression(): Node.Expression {
+    const expression = this.parsePrimaryExpression();
+    if (this.match("(")) {
+      const args = this.parseFormalParameters();
+      return new Node.CallExpression(expression, args);
+    }
+    return expression;
   }
 
   private parsePrimaryExpression(): Node.Expression {
@@ -401,6 +407,13 @@ export class Parser {
     return new Node.ForStatement(init, test, update, body);
   }
 
+  private parseVariableStatement(): Node.VariableDeclaration {
+    this.expectKeyword("var");
+    const declarations = this.parseVariableDeclarationList();
+    this.consumeSemicolon();
+    return new Node.VariableDeclaration(declarations, "var");
+  }
+
   // 解析声明列表 比如 var a=1,b=2;
   private parseVariableDeclarationList(): Node.VariableDeclarator[] {
     const list: Node.VariableDeclarator[] = [];
@@ -418,6 +431,39 @@ export class Parser {
     this.expect("=");
     init = this.parseAssignmentExpression();
     return new Node.VariableDeclarator(id, init);
+  }
+
+  private parseIfStatement(): Node.IfStatement {
+    this.expectKeyword("if");
+    this.expect("(");
+    const test = this.parseAssignmentExpression();
+    this.expect(")");
+    const consequent = this.parseBlock();
+    let alternate: Node.BlockStatement | null = null;
+    if (this.matchKeyword("else")) {
+      this.nextToken();
+      alternate = this.parseBlock();
+    }
+    return new Node.IfStatement(test, consequent, alternate);
+  }
+
+  private parseReturnStatement(): Node.ReturnStatement {
+    this.expectKeyword("return");
+    let argument: Node.Expression | null = null;
+    if (!this.match(";")) {
+      argument = this.parseAssignmentExpression();
+    }
+    this.consumeSemicolon();
+    return new Node.ReturnStatement(argument);
+  }
+
+  private parseWhileStatement(): Node.WhileStatement {
+    this.expectKeyword("while");
+    this.expect("(");
+    const test = this.parseAssignmentExpression();
+    this.expect(")");
+    const body = this.parseBlock();
+    return new Node.WhileStatement(test, body);
   }
 
   // 吃掉关键字
@@ -441,6 +487,13 @@ export class Parser {
     return (
       this.lookahead.type === TokenName[Token.Punctuator] &&
       this.lookahead.value === value
+    );
+  }
+
+  matchKeyword(keyword: string) {
+    return (
+      this.lookahead.type === TokenName[Token.Keyword] &&
+      this.lookahead.value === keyword
     );
   }
 
