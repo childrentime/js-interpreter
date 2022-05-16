@@ -85,12 +85,10 @@ export class CallExpression {
   readonly type: string;
   readonly callee: Expression;
   readonly arguments: Expression[];
-  readonly optional: boolean;
-  constructor(callee: Expression, args: Expression[], optional: boolean) {
+  constructor(callee: Expression, args: Expression[]) {
     this.type = Syntax.CallExpression;
     this.callee = callee;
     this.arguments = args;
-    this.optional = optional;
   }
 }
 
