@@ -174,8 +174,8 @@ export class Parser {
         return this.parseExpressionStatement();
       case TokenName[Token.Keyword]:
         switch (this.lookahead.value) {
-          // case "break":
-          //   return this.parseBreakStatement();
+          case "break":
+            return this.parseBreakStatement();
           // case "continue":
           //   return this.parseContinueStatement();
           // case "for":
@@ -359,6 +359,12 @@ export class Parser {
     const expression = this.parseAssignmentExpression();
     this.expect(")");
     return expression;
+  }
+
+  private parseBreakStatement(): Node.BreakStatement {
+    this.expectKeyword("break");
+    this.consumeSemicolon();
+    return new Node.BreakStatement();
   }
 
   // 吃掉关键字
