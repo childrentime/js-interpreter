@@ -330,10 +330,18 @@ export class Parser {
   }
 
   private parseCallExpression(): Node.Expression {
-    const expression = this.parsePrimaryExpression();
-    if (this.match("(")) {
-      const args = this.parseFormalParameters();
-      return new Node.CallExpression(expression, args);
+    let expression = this.parsePrimaryExpression();
+    while (true) {
+      if (this.match("(")) {
+        const args = this.parseFormalParameters();
+        expression = new Node.CallExpression(expression, args);
+      } else if (this.match(".")) {
+        this.expect(".");
+        const property = this.parseVariableIdentifier();
+        expression = new Node.MemberExpression(expression, property);
+      } else {
+        break;
+      }
     }
     return expression;
   }

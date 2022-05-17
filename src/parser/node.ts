@@ -6,7 +6,7 @@ export type Expression =
   | UnaryExpression
   | UpdateExpression
   | BinaryExpression
-  | ComputedMemberExpression
+  | MemberExpression
   | CallExpression
   | Identifier
   | Literal;
@@ -65,19 +65,15 @@ export class BinaryExpression {
   }
 }
 
-// 如果是 a[b]这样的 那么 computed属性为 true
-export class ComputedMemberExpression {
+// 不考虑a[b] 计算成员表达式
+export class MemberExpression {
   readonly type: string;
-  readonly computed: boolean;
   readonly object: Expression;
   readonly property: Expression;
-  readonly optional: boolean;
-  constructor(object: Expression, property: Expression, optional: boolean) {
+  constructor(object: Expression, property: Expression) {
     this.type = Syntax.MemberExpression;
-    this.computed = true;
     this.object = object;
     this.property = property;
-    this.optional = optional;
   }
 }
 
