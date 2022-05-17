@@ -463,4 +463,38 @@ describe("parse", () => {
       })
     );
   });
+
+  it("should parse member expression", () => {
+    const input = "a.b.c";
+    const ast = parse(input);
+    expect(JSON.stringify(ast)).toStrictEqual(
+      JSON.stringify({
+        type: "Program",
+        body: [
+          {
+            type: "ExpressionStatement",
+            expression: {
+              type: "MemberExpression",
+              object: {
+                type: "MemberExpression",
+                object: {
+                  type: "Identifier",
+                  name: "a",
+                },
+                property: {
+                  type: "Identifier",
+                  name: "b",
+                },
+              },
+              property: {
+                type: "Identifier",
+                name: "c",
+              },
+            },
+          },
+        ],
+        sourceType: "script",
+      })
+    );
+  });
 });
