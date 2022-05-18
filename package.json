@@ -1,11 +1,11 @@
 {
-  "name": "ast-viualization",
+  "name": "js-interpreter",
   "version": "1.0.0",
   "description": "This project is about to implement a simple javascript parser and visualize the ast",
   "main": "src/index.ts",
-  "repository": "https://github.com/childrentime/ast-viualization",
+  "repository": "https://github.com/childrentime/js-interpreter",
   "bug": {
-    "url": "https://github.com/childrentime/ast-viualization/issues"
+    "url": "https://github.com/childrentime/js-interpreter/issues"
   },
   "author": "childrentime",
   "license": "MIT",
