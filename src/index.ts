@@ -1,5 +1,6 @@
 import { Parser } from "./parser/parse";
 import { BufferEntry, Tokenizer } from "./tokenizer/tokenizer";
+import evaluate from "./interpreter/interpreter";
 
 const tokenizer = (code: string) => {
   const tokenizer = new Tokenizer(code);
@@ -21,4 +22,10 @@ const parse = (code: string) => {
   return ast;
 };
 
-export { tokenizer, parse };
+const interpreter = (code: string) => {
+  const ast = parse(code);
+  console.log(ast);
+  return evaluate(ast);
+};
+
+export { tokenizer, parse, interpreter };
