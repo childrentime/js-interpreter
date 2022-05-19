@@ -533,4 +533,40 @@ describe("parse", () => {
       })
     );
   });
+
+  it("should parse call expression", () => {
+    const input = "console.log(1)";
+    const ast = parse(input);
+    expect(JSON.stringify(ast)).toStrictEqual(
+      JSON.stringify({
+        type: "Program",
+        body: [
+          {
+            type: "ExpressionStatement",
+            expression: {
+              type: "CallExpression",
+              callee: {
+                type: "MemberExpression",
+                object: {
+                  type: "Identifier",
+                  name: "console",
+                },
+                property: {
+                  type: "Identifier",
+                  name: "log",
+                },
+              },
+              arguments: [
+                {
+                  type: "Literal",
+                  value: "1",
+                },
+              ],
+            },
+          },
+        ],
+        sourceType: "script",
+      })
+    );
+  });
 });
