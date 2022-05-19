@@ -333,7 +333,8 @@ export class Parser {
     let expression = this.parsePrimaryExpression();
     while (true) {
       if (this.match("(")) {
-        const args = this.parseFormalParameters();
+        // 解析函数调用参数 可以为expression
+        const args = this.parseArguments();
         expression = new Node.CallExpression(expression, args);
       } else if (this.match(".")) {
         this.expect(".");
@@ -344,6 +345,24 @@ export class Parser {
       }
     }
     return expression;
+  }
+
+  private parseArguments(): Node.Expression[] {
+    this.expect("(");
+    const args: Node.Expression[] = [];
+    while (!this.match(")")) {
+      const expression = this.parseAssignmentExpression();
+      args.push(expression);
+      if (this.match(")")) {
+        break;
+      }
+      this.expect(",");
+      if (this.match(")")) {
+        break;
+      }
+    }
+    this.expect(")");
+    return args;
   }
 
   private parsePrimaryExpression(): Node.Expression {
