@@ -1,8 +1,9 @@
 {
-  "name": "js-interpreter",
-  "version": "1.0.0",
+  "name": "@childrentime/js-interpreter",
+  "version": "1.0.1",
   "description": "This project is about to implement a simple javascript parser and visualize the ast",
   "main": "src/index.ts",
+  "types": "src/index.ts",
   "repository": "https://github.com/childrentime/js-interpreter",
   "bug": {
     "url": "https://github.com/childrentime/js-interpreter/issues"
