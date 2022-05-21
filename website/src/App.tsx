@@ -1,7 +1,16 @@
 import Editor from "@monaco-editor/react";
 import { useMemo, useState } from "react";
 
-const defaultValue = "console.log('hello world');";
+const defaultValue = `function Fibonacci(n) {
+  if(n === 1) {
+    return 1;
+  }
+  if(n === 2) {
+    return 2;
+  }
+  return Fibonacci(n-1)+Fibonacci(n-2)
+}
+console.log(Fibonacci(3))`;
 const worker = new Worker(new URL("./worker.ts", import.meta.url));
 worker.postMessage(defaultValue);
 function App() {
