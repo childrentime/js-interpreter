@@ -138,6 +138,15 @@ const astInterpreters = {
     const obj = scope.get(evaluator(node.object, scope));
     return obj[evaluator(node.property, scope)];
   },
+  AssignmentExpression(node: Node.AssignmentExpression, scope: Scope) {
+    const left = (node.left as Node.Identifier).name;
+    const rightValue = getIdentifierValue(node.right, scope);
+    switch (node.operator) {
+      case "=":
+        scope.set(left, rightValue);
+        break;
+    }
+  },
   BinaryExpression(node: Node.BinaryExpression, scope: Scope) {
     const leftValue = getIdentifierValue(node.left, scope);
     const rightValue = getIdentifierValue(node.right, scope);

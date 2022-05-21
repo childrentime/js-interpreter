@@ -129,4 +129,10 @@ describe("interpreter", () => {
     const output = interpreter(input);
     expect(output).toStrictEqual([[["1", "2", "3", "5"]]]);
   });
+
+  it("should interpreter identify", () => {
+    const input = `var a = 1; a = 2;console.log(a);`;
+    const output = interpreter(input);
+    expect(output).toStrictEqual([[2]]);
+  });
 });
