@@ -8,8 +8,31 @@ body {
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
 }
 
+.operation {
+  height: 50px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.editor {
+  flex: 1;
+  display: flex;
+}
 .left {
   width: 50%;
+}
+
+button {
+  background-color: #e83c6c;
+  border: none;
+  border-radius: 0.3rem;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
 }
