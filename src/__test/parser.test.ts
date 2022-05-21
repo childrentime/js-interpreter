@@ -568,4 +568,32 @@ describe("parse", () => {
       })
     );
   });
+
+  it("should parse logical expression", () => {
+    const input = "a && b";
+    const ast = parse(input);
+    expect(JSON.stringify(ast)).toStrictEqual(
+      JSON.stringify({
+        type: "Program",
+        body: [
+          {
+            type: "ExpressionStatement",
+            expression: {
+              type: "LogicalExpression",
+              operator: "&&",
+              left: {
+                type: "Identifier",
+                name: "a",
+              },
+              right: {
+                type: "Identifier",
+                name: "b",
+              },
+            },
+          },
+        ],
+        sourceType: "script",
+      })
+    );
+  });
 });
