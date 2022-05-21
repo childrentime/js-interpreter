@@ -24,7 +24,6 @@ const parse = (code: string) => {
 
 const interpreter = (code: string) => {
   const ast = parse(code);
-  console.log(ast);
   return evaluate(ast);
 };
 
