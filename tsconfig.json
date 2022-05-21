@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./lib",
     "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     "module": "commonjs" /* Specify what module code is generated. */,
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */,
@@ -14,5 +15,9 @@
     "noUnusedParameters": true /* Raise an error when a function parameter isn't read */,
     "noImplicitReturns": true /* Enable error reporting for codepaths that do not explicitly return in a function. */,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": ["src/__test"]
 }
