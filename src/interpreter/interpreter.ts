@@ -35,6 +35,53 @@ const astInterpreters = {
       evaluator(item, scope);
     });
   },
+  VariableDeclaration(node: Node.VariableDeclaration, scope: Scope) {
+    for (const declaration of node.declarations) {
+      scope.set(declaration.id.name, evaluator(declaration.init, scope));
+    }
+  },
+  FunctionDeclaration(node: Node.FunctionDeclaration, scope: Scope) {
+    // 函数名称
+    const declareName = evaluator(node.id, scope);
+    // 设置函数作用域
+    scope.set(declareName, function <
+      F extends (...arg: any[]) => any
+    >(this: ThisParameterType<F>, ...args: Parameters<F>) {
+      const funcScope = new Scope(scope);
+
+      node.params.forEach((item, index) => {
+        funcScope.set(item.name, args[index]);
+      });
+      funcScope.set("this", this);
+      return evaluator(node.body, funcScope);
+    });
+  },
+  // 块语句中 我们需要检测所有的 return 语句
+  BlockStatement(node: Node.BlockStatement, scope: Scope) {
+    scope.set("return", false);
+    for (let i = 0; i < node.body.length; i++) {
+      // 如果有语句将 return 修改为 true 则终止
+      const v = evaluator(node.body[i], scope);
+      if (scope.get("return")) {
+        return v;
+      }
+    }
+  },
+  IfStatement(node: Node.IfStatement, scope: Scope) {
+    const test = evaluator(node.test, scope);
+    if (test) {
+      // 执行完块的语句后 返回块的值
+      const v = evaluator(node.consequent, scope);
+      return v;
+    } else if (node.alternate != null) {
+      const v = evaluator(node.alternate, scope);
+      return v;
+    }
+  },
+  ReturnStatement(node: Node.ReturnStatement, scope: Scope) {
+    scope.set("return", true);
+    return evaluator(node.argument, scope);
+  },
   ExpressionStatement(node: Node.ExpressionStatement, scope: Scope) {
     return evaluator(node.expression, scope);
   },
@@ -45,6 +92,7 @@ const astInterpreters = {
       }
       return evaluator(item, scope);
     });
+
     if (node.callee.type === "MemberExpression") {
       const fn = evaluator(node.callee, scope);
       const obj = evaluator((<Node.MemberExpression>node.callee).object, scope);
@@ -58,6 +106,33 @@ const astInterpreters = {
     const obj = scope.get(evaluator(node.object, scope));
     return obj[evaluator(node.property, scope)];
   },
+  BinaryExpression(node: Node.BinaryExpression, scope: Scope) {
+    const getIdentifierValue = (node: any, scope: Scope) => {
+      if (node.type === "Identifier") {
+        return scope.get(node.name);
+      } else {
+        return evaluator(node, scope);
+      }
+    };
+    const leftValue = getIdentifierValue(node.left, scope);
+    const rightValue = getIdentifierValue(node.right, scope);
+
+    switch (node.operator) {
+      case "+":
+        return leftValue + rightValue;
+      case "-":
+        return leftValue - rightValue;
+      case "*":
+        return leftValue * rightValue;
+      case "/":
+        return leftValue / rightValue;
+      case "==":
+      case "===":
+        return leftValue === rightValue;
+      default:
+        throw Error("upsupported operator：" + node.operator);
+    }
+  },
   Identifier(node: Node.Identifier, scope: Scope) {
     return node.name;
   },
@@ -66,7 +141,10 @@ const astInterpreters = {
   },
 };
 //解释器
-const evaluator = (node: { type: string }, scope: Scope) => {
+const evaluator = (node: { type: string } | null, scope: Scope): any => {
+  if (!node) {
+    return undefined;
+  }
   try {
     return astInterpreters[node.type](node, scope);
   } catch (e: unknown) {
@@ -74,18 +152,17 @@ const evaluator = (node: { type: string }, scope: Scope) => {
   }
 };
 
-const globalScope = new Scope(null);
-globalScope.set("console", {
-  log: function (...args: any[]) {
-    console.log(...args);
-  },
-  error: function (...args: any[]) {
-    console.log(...args);
-  },
-});
-
-const evaluate = (node: Node.Script) => {
-  return evaluator(node, globalScope);
+const evaluate = (node: Node.Script): any => {
+  const globalScope = new Scope(null);
+  const output: any[][] = [];
+  globalScope.set("console", {
+    log: function (...args: any[]) {
+      output.push([...args]);
+    },
+  });
+  globalScope.set("parseInt", parseInt);
+  evaluator(node, globalScope);
+  return output;
 };
 
 export default evaluate;
