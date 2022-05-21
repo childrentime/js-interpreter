@@ -55,7 +55,7 @@ describe("parse", () => {
               },
               right: {
                 type: "Literal",
-                value: "1",
+                value: 1,
               },
             },
           },
@@ -104,7 +104,6 @@ describe("parse", () => {
   it("should parse function declarations", () => {
     const input = "function a(param1,param2){b=1}";
     const ast = parse(input);
-    console.log(JSON.stringify(ast, null, 2));
     expect(JSON.stringify(ast)).toStrictEqual(
       JSON.stringify({
         type: "Program",
@@ -139,7 +138,7 @@ describe("parse", () => {
                     },
                     right: {
                       type: "Literal",
-                      value: "1",
+                      value: 1,
                     },
                   },
                 },
@@ -170,7 +169,7 @@ describe("parse", () => {
                 },
                 init: {
                   type: "Literal",
-                  value: "1",
+                  value: 1,
                 },
               },
             ],
@@ -204,7 +203,7 @@ describe("parse", () => {
                   },
                   init: {
                     type: "Literal",
-                    value: "1",
+                    value: 1,
                   },
                 },
               ],
@@ -219,7 +218,7 @@ describe("parse", () => {
               },
               right: {
                 type: "Literal",
-                value: "3",
+                value: 3,
               },
             },
             update: {
@@ -245,7 +244,7 @@ describe("parse", () => {
                       },
                       init: {
                         type: "Literal",
-                        value: "1",
+                        value: 1,
                       },
                     },
                   ],
@@ -282,7 +281,7 @@ describe("parse", () => {
               },
               right: {
                 type: "Literal",
-                value: "1",
+                value: 1,
               },
             },
             consequent: {
@@ -299,7 +298,7 @@ describe("parse", () => {
                     },
                     right: {
                       type: "Literal",
-                      value: "2",
+                      value: 2,
                     },
                   },
                 },
@@ -319,7 +318,7 @@ describe("parse", () => {
                     },
                     right: {
                       type: "Literal",
-                      value: "3",
+                      value: 3,
                     },
                   },
                 },
@@ -358,11 +357,11 @@ describe("parse", () => {
                     operator: "+",
                     left: {
                       type: "Literal",
-                      value: "1",
+                      value: 1,
                     },
                     right: {
                       type: "Literal",
-                      value: "2",
+                      value: 2,
                     },
                   },
                 },
@@ -395,7 +394,7 @@ describe("parse", () => {
               },
               right: {
                 type: "Literal",
-                value: "1",
+                value: 1,
               },
             },
             body: {
@@ -412,7 +411,7 @@ describe("parse", () => {
                       },
                       init: {
                         type: "Literal",
-                        value: "2",
+                        value: 2,
                       },
                     },
                   ],
@@ -559,7 +558,7 @@ describe("parse", () => {
               arguments: [
                 {
                   type: "Literal",
-                  value: "1",
+                  value: 1,
                 },
               ],
             },
