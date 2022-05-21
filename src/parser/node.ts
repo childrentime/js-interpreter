@@ -256,12 +256,9 @@ export class Literal {
   readonly type: string;
   // 实际值 比如 0x100 这里会是256
   readonly value: boolean | number | string | null;
-  // 原值 比如 0x100 这里还是0x100
-  // readonly raw: string;
-  constructor(value: boolean | number | string | null, raw: string = "") {
+  constructor(value: boolean | number | string | null) {
     this.type = Syntax.Literal;
     this.value = value;
-    // this.raw = raw;
   }
 }
 

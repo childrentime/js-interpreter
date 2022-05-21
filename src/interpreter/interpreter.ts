@@ -133,10 +133,10 @@ const astInterpreters = {
         throw Error("upsupported operator：" + node.operator);
     }
   },
-  Identifier(node: Node.Identifier, scope: Scope) {
+  Identifier(node: Node.Identifier) {
     return node.name;
   },
-  Literal(node: Node.Literal, scope: Scope) {
+  Literal(node: Node.Literal) {
     return node.value;
   },
 };
