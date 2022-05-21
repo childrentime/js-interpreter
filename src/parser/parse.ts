@@ -112,7 +112,7 @@ export class Parser {
   // 解析标识符
   private parseVariableIdentifier(): Node.Identifier {
     const token = this.nextToken();
-    return new Node.Identifier(token.value);
+    return new Node.Identifier(token.value as string);
   }
 
   // (a1,a2,a3) 解析参数
@@ -306,7 +306,7 @@ export class Parser {
       const token = this.nextToken();
       // 可能嵌套 比如 !!a
       const expression = this.parseUnaryExpression();
-      return new Node.UnaryExpression(token.value, expression);
+      return new Node.UnaryExpression(token.value as string, expression);
     }
 
     return this.parseUpdateExpression();
@@ -317,13 +317,21 @@ export class Parser {
       const token = this.nextToken();
       const expression = this.parsePrimaryExpression();
       const prefix = true;
-      return new Node.UpdateExpression(token.value, expression, prefix);
+      return new Node.UpdateExpression(
+        token.value as string,
+        expression,
+        prefix
+      );
     } else {
       const expression = this.parseCallExpression();
       if (this.match("++") || this.match("--")) {
         const operator = this.nextToken().value;
         const prefix = false;
-        return new Node.UpdateExpression(operator, expression, prefix);
+        return new Node.UpdateExpression(
+          operator as string,
+          expression,
+          prefix
+        );
       }
       return expression;
     }
@@ -368,7 +376,7 @@ export class Parser {
   private parsePrimaryExpression(): Node.Expression {
     switch (this.lookahead.type) {
       case TokenName[Token.Identifier]:
-        return new Node.Identifier(this.nextToken().value);
+        return new Node.Identifier(this.nextToken().value as string);
       case TokenName[Token.NumericLiteral]:
       case TokenName[Token.StringLiteral]: {
         const token = this.nextToken();

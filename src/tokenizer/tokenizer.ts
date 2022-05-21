@@ -3,7 +3,7 @@ import { Token, TokenName } from "./token";
 
 export interface BufferEntry {
   type: Token;
-  value: string;
+  value: string | number;
 }
 export class Tokenizer {
   private readonly buffer: BufferEntry[] = [];
@@ -21,7 +21,7 @@ export class Tokenizer {
         const token: RawToken = this.scanner.lex();
         const entry: BufferEntry = {
           type: TokenName[token.type],
-          value: this.scanner.source.slice(token.start, token.end),
+          value: token.value,
         };
         this.buffer.push(entry);
       }
