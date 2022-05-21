@@ -29,6 +29,13 @@ class Scope {
   }
 }
 
+const getIdentifierValue = (node: any, scope: Scope) => {
+  if (node.type === "Identifier") {
+    return scope.get(node.name);
+  } else {
+    return evaluator(node, scope);
+  }
+};
 const astInterpreters = {
   Program(node: Node.Script, scope: Scope) {
     node.body.forEach((item) => {
@@ -55,6 +62,31 @@ const astInterpreters = {
       funcScope.set("this", this);
       return evaluator(node.body, funcScope);
     });
+  },
+  WhileStatement(node: Node.WhileStatement, scope: Scope) {
+    scope.set("break", false);
+    // 如果测试条件一直成立
+    while (evaluator(node.test, scope)) {
+      evaluator(node.body, scope);
+      if (scope.get("break")) {
+        break;
+      }
+    }
+  },
+  BreakStatement(node: Node.BreakStatement, scope: Scope) {
+    scope.set("break", true);
+  },
+  ForStatement(node: Node.ForStatement, scope: Scope) {
+    scope.set("break", false);
+    const { init, test, update, body } = node;
+    evaluator(init, scope);
+    while (evaluator(test, scope)) {
+      evaluator(body, scope);
+      evaluator(update, scope);
+      if (scope.get("break")) {
+        break;
+      }
+    }
   },
   // 块语句中 我们需要检测所有的 return 语句
   BlockStatement(node: Node.BlockStatement, scope: Scope) {
@@ -107,13 +139,6 @@ const astInterpreters = {
     return obj[evaluator(node.property, scope)];
   },
   BinaryExpression(node: Node.BinaryExpression, scope: Scope) {
-    const getIdentifierValue = (node: any, scope: Scope) => {
-      if (node.type === "Identifier") {
-        return scope.get(node.name);
-      } else {
-        return evaluator(node, scope);
-      }
-    };
     const leftValue = getIdentifierValue(node.left, scope);
     const rightValue = getIdentifierValue(node.right, scope);
 
@@ -127,10 +152,46 @@ const astInterpreters = {
       case "/":
         return leftValue / rightValue;
       case "==":
+        return leftValue == rightValue;
       case "===":
         return leftValue === rightValue;
+      case "!=":
+        return leftValue !== rightValue;
+      case "!==":
+        return leftValue !== rightValue;
+      case "<":
+        return leftValue < rightValue;
+      case ">":
+        return leftValue > rightValue;
+      case "<=":
+        return leftValue <= rightValue;
+      case ">=":
+        return leftValue >= rightValue;
       default:
         throw Error("upsupported operator：" + node.operator);
+    }
+  },
+  LogicalExpression(node: Node.BinaryExpression, scope: Scope) {
+    const leftValue = getIdentifierValue(node.left, scope);
+    const rightValue = getIdentifierValue(node.right, scope);
+    switch (node.operator) {
+      case "**":
+        return leftValue ** rightValue;
+      case "&&":
+        return leftValue && rightValue;
+      case "||":
+        return leftValue || rightValue;
+      default:
+        throw Error("upsupported operator：" + node.operator);
+    }
+  },
+  UpdateExpression(node: Node.UpdateExpression, scope: Scope) {
+    const argument = node.argument as Node.Identifier;
+    const identify = argument.name;
+    if (node.operator === "++") {
+      scope.set(identify, (getIdentifierValue(argument, scope) as number) + 1);
+    } else {
+      scope.set(identify, (getIdentifierValue(argument, scope) as number) - 1);
     }
   },
   Identifier(node: Node.Identifier) {
@@ -161,6 +222,13 @@ const evaluate = (node: Node.Script): any => {
     },
   });
   globalScope.set("parseInt", parseInt);
+  globalScope.set("Math", Math);
+  globalScope.set("String", String);
+  globalScope.set("Number", Number);
+  globalScope.set("Map", Map);
+  globalScope.set("Set", Set);
+  globalScope.set("Boolean", Boolean);
+  globalScope.set("Array", Array);
   evaluator(node, globalScope);
   return output;
 };
