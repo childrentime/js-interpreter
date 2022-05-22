@@ -222,7 +222,7 @@ const evaluator = (node: { type: string } | null, scope: Scope): any => {
   }
 };
 
-const evaluate = (node: Node.Script): any => {
+const evaluate = (node: Node.Script): any[][] => {
   const globalScope = new Scope(null);
   const output: any[][] = [];
   globalScope.set("console", {
