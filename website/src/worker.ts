@@ -8,7 +8,3 @@ ctx.onmessage = (event: MessageEvent) => {
   const output = interpreter(input);
   ctx.postMessage(output);
 };
-
-ctx.onerror = (event: ErrorEvent) => {
-  ctx.terminate();
-};
