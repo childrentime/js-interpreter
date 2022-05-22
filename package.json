@@ -8,6 +8,7 @@
   "bug": {
     "url": "https://github.com/childrentime/js-interpreter/issues"
   },
+  "keywords": ["interpreter", "typescript","parser","tokenizer"],
   "author": "childrentime",
   "license": "MIT",
   "private": false,
