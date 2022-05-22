@@ -19,14 +19,11 @@ function App() {
   const [result, setResult] = useState<any[][]>([[]]);
   const output = useMemo(
     () =>
-      result.map((item) => {
-        let res = "";
-        for (const i of item) {
-          res += i;
-        }
-        res += "\n";
-        return res;
-      }),
+      result
+        .map((item) => {
+          return item.toString();
+        })
+        .map((item) => <div>{item}</div>),
     [result]
   );
   const handleEditorChange = (value: string | undefined, event: any) => {
