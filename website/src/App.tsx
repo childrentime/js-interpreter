@@ -24,6 +24,7 @@ function App() {
         for (const i of item) {
           res += i;
         }
+        res += "\n";
         return res;
       }),
     [result]
